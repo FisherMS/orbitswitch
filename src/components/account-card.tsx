@@ -36,6 +36,24 @@ function recoveryHint(groups: QuotaGroup[]): string | null {
   return null;
 }
 
+/** The earliest weekly quota reset duration for this account. */
+function weeklyResetTime(account: Account): string | null {
+  if (account.quota.status !== "ready") return null;
+  let minResetAt: string | null = null;
+  let minMs = Infinity;
+  const now = Date.now();
+  for (const group of account.quota.groups) {
+    if (group.weekly?.resetAt) {
+      const ms = new Date(group.weekly.resetAt).getTime() - now;
+      if (ms > 0 && ms < minMs) {
+        minMs = ms;
+        minResetAt = group.weekly.resetAt;
+      }
+    }
+  }
+  return untilReset(minResetAt);
+}
+
 function QuotaBody({ account, onReauth }: Pick<Props, "account" | "onReauth">) {
   const { quota } = account;
   switch (quota.status) {
@@ -95,6 +113,7 @@ export function AccountCard({
 }: Props) {
   const name = displayName(account.name, account.email);
   const canSwitch = !active && !disabled && !needsDesktop && account.quota.status !== "reauth";
+  const weeklyReset = weeklyResetTime(account);
   const classes = ["card", active && "card-active", canSwitch && "card-switchable"].filter(Boolean).join(" ");
   return (
     // biome-ignore lint/a11y/useKeyWithClickEvents: the account identity button is the keyboard path.
@@ -106,6 +125,11 @@ export function AccountCard({
         onMenu(event);
       }}
     >
+      {active && (
+        <svg className="card-marching-ants" aria-hidden="true">
+          <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="11" ry="11" />
+        </svg>
+      )}
       <header className="card-head">
         <button
           type="button"
@@ -134,17 +158,22 @@ export function AccountCard({
           </span>
           <span className="card-email truncate">{account.email}</span>
         </button>
-        <button
-          type="button"
-          className="icon-btn card-more"
-          aria-label={t("account.actions")}
-          onClick={(event) => {
-            event.stopPropagation();
-            onMenu(event);
-          }}
-        >
-          <MoreIcon />
-        </button>
+        <div className="card-head-end">
+          {weeklyReset && (
+            <span className="card-weekly-reset">{t("quota.resetsIn", { time: weeklyReset })}</span>
+          )}
+          <button
+            type="button"
+            className="icon-btn card-more"
+            aria-label={t("account.actions")}
+            onClick={(event) => {
+              event.stopPropagation();
+              onMenu(event);
+            }}
+          >
+            <MoreIcon />
+          </button>
+        </div>
       </header>
       <QuotaBody account={account} onReauth={onReauth} />
       {needsDesktop && (
