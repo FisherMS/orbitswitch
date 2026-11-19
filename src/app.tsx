@@ -125,6 +125,32 @@ export function App() {
       );
     }
   };
+  const exportAccounts = () => {
+    ipc
+      .exportAccounts()
+      .then((count) => {
+        if (count === null || count === undefined) return;
+        setDialog({
+          kind: "result",
+          tone: count > 0 ? "success" : "error",
+          message: count > 0 ? t("export.done", { count }) : t("export.empty"),
+        });
+      })
+      .catch(fail);
+  };
+  const importAccounts = () => {
+    ipc
+      .importAccounts()
+      .then((count) => {
+        if (count === null || count === undefined) return;
+        setDialog({
+          kind: "result",
+          tone: count > 0 ? "success" : "error",
+          message: count > 0 ? t("import.done", { count }) : t("import.none"),
+        });
+      })
+      .catch(fail);
+  };
   const askSwitch = async (account: Account) =>
     setDialog({ kind: "switch", account, processes: await ipc.runningProcesses(account.provider) });
   const askClient = async (kind: "stop" | "restart") => {
@@ -181,11 +207,19 @@ export function App() {
         status={status}
         onRefresh={() => ipc.refresh(true).catch(fail)}
         onMore={(event) =>
-          showAppMenu(event, snapshot.version, {
-            checking: snapshot.update.checking,
-            enabled: !busy,
-            onCheck: checkUpdate,
-          })
+          showAppMenu(
+            event,
+            snapshot.version,
+            {
+              checking: snapshot.update.checking,
+              enabled: !busy,
+              onCheck: checkUpdate,
+            },
+            {
+              onExport: exportAccounts,
+              onImport: importAccounts,
+            },
+          )
         }
       />
 

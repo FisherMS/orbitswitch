@@ -6,6 +6,10 @@ All notable changes to OrbitSwitch are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Export and import all account configurations and credentials through the app menu (#export-import).
+
 ## [0.3.0] - 2026-11-18
 
 ### Added
