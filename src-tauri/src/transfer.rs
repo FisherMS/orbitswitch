@@ -77,7 +77,7 @@ async fn pick_open_path() -> Result<Option<std::path::PathBuf>> {
     tokio::task::spawn_blocking(|| {
         let script = r#"tell application "System Events"
     activate
-    set filePath to choose file of type {"json"} with prompt "Import Accounts"
+    set filePath to choose file of type {"public.json", "json"} with prompt "Import Accounts"
 end tell
 POSIX path of filePath"#;
         let output = std::process::Command::new("/usr/bin/osascript")
