@@ -17,7 +17,7 @@ import { errorText, t } from "./i18n";
 import { asBackendError, ipc, onShown } from "./ipc";
 import { showAccountMenu, showAppMenu } from "./menus";
 import { PROVIDERS, providerInfo } from "./providers";
-import { bestAccountId } from "./quota";
+import { bestAccountId, sortAccounts } from "./quota";
 import type { Account, ProcessKind, Provider, RelatedProcess, UpdateInfo } from "./types";
 import "./app.css";
 
@@ -99,10 +99,7 @@ export function App() {
   const vars = providerInfo[provider];
   const visibleAccounts = snapshot.accounts.filter((account) => account.provider === provider);
   const best = bestAccountId(visibleAccounts, status.activeId);
-  // The account in use leads the list; the rest keep the order they were added in.
-  const accounts = [...visibleAccounts].sort(
-    (a, b) => Number(b.id === status.activeId) - Number(a.id === status.activeId),
-  );
+  const accounts = sortAccounts(visibleAccounts, status.activeId);
 
   const addAccount = () => ipc.addAccount(provider).catch(fail);
   const checkUpdate = async () => {

@@ -153,26 +153,30 @@ export function AccountCard({
           <span className="card-name">
             <span className="truncate">{name}</span>
             <PlanBadge plan={account.plan} />
-            {active && <span className="tag tag-current">{t("account.current")}</span>}
-            {!active && best && <span className="tag tag-best">{t("account.best")}</span>}
           </span>
           <span className="card-email truncate">{account.email}</span>
         </button>
         <div className="card-head-end">
-          {weeklyReset && (
-            <span className="card-weekly-reset">{t("quota.resetsIn", { time: weeklyReset })}</span>
-          )}
-          <button
-            type="button"
-            className="icon-btn card-more"
-            aria-label={t("account.actions")}
-            onClick={(event) => {
-              event.stopPropagation();
-              onMenu(event);
-            }}
-          >
-            <MoreIcon />
-          </button>
+          <div className="card-head-row-top">
+            {weeklyReset && (
+              <span className="card-weekly-reset">{t("quota.weekResetsIn", { time: weeklyReset })}</span>
+            )}
+            <button
+              type="button"
+              className="icon-btn card-more"
+              aria-label={t("account.actions")}
+              onClick={(event) => {
+                event.stopPropagation();
+                onMenu(event);
+              }}
+            >
+              <MoreIcon />
+            </button>
+          </div>
+          <div className="card-head-row-bottom">
+            {active && <span className="tag tag-current">{t("account.current")}</span>}
+            {!active && best && <span className="tag tag-best">{t("account.best")}</span>}
+          </div>
         </div>
       </header>
       <QuotaBody account={account} onReauth={onReauth} />
